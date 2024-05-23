@@ -1,0 +1,9 @@
+URL:-https://platform.stratascratch.com/coding/9917-average-salaries?code_type=1
+
+//AVERAGE SALARY DEPARTMENT WISE USING PARTITION CLAUSE
+select 
+    department,
+    first_name,
+    salary,
+    avg(salary) OVER (partition by department) AS avg_salary_of_department
+from employee;
