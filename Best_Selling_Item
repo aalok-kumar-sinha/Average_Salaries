@@ -1,0 +1,20 @@
+https://platform.stratascratch.com/coding/10172-best-selling-item?code_type=1
+
+//
+Find the best selling item for each month (no need to separate months by year) 
+where the biggest total invoice was paid. The best selling item is calculated using the formula (unitprice * quantity).
+Output the month, the description of the item along with the amount paid.
+//
+
+SELECT
+    month, description, total_amount
+FROM
+    (SELECT 
+        date_part('month', invoicedate) AS month,
+        description,
+        sum(quantity * unitprice) as total_amount,
+        RANK() OVER (PARTITION BY date_part('month', invoicedate) ORDER BY sum(quantity * unitprice) DESC) AS rnk
+    FROM
+        online_retail
+    GROUP BY month, description) inn_qry
+WHERE rnk = 1
