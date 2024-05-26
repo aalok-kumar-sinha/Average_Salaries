@@ -1,0 +1,21 @@
+https://platform.stratascratch.com/coding/9898-unique-salaries?code_type=1
+
+\\
+Find the top three distinct salaries for each department.
+Output the department name and the top 3 distinct salaries by each department.
+Order your results alphabetically by department and then by highest salary to lowest.
+
+Table: twitter_employee
+\\
+
+WITH base_table AS (SELECT 
+    department,
+    salary,
+    DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) as salary_rank
+FROM twitter_employee)
+SELECT
+    DISTINCT department,
+    salary
+FROM base_table
+WHERE salary_rank < 4
+ORDER BY department ASC , salary DESC
