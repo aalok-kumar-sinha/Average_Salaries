@@ -1,0 +1,21 @@
+https://platform.stratascratch.com/coding/10171-find-the-genre-of-the-person-with-the-most-number-of-oscar-winnings?code_type=1
+
+\\
+Find the genre of the person with the most number of oscar winnings.
+If there are more than one person with the same number of oscar wins,
+return the first one in alphabetic order based on their name. Use the names as keys when joining the tables.
+\\
+
+SELECT info.top_genre 
+FROM nominee_information AS info
+JOIN (
+    SELECT
+    nominee, COUNT(*) OVER (PARTITION BY nominee) AS n_winner
+    FROM 
+    oscar_nominees
+    WHERE 
+    winner = True
+    order by n_winner desc
+    LIMIT 1
+) tbl
+ON tbl.nominee = info.name
