@@ -1,0 +1,28 @@
+https://platform.stratascratch.com/coding/10017-year-over-year-churn?code_type=1
+
+\\
+Find how the number of drivers that have churned changed in each year compared to the previous one.
+Output the year (specifically, you can use the year the driver left Lyft) along with the corresponding number of churns in that year,
+the number of churns in the previous year, and an indication on whether the number has been increased (output the value 'increase'),
+decreased (output the value 'decrease') or stayed the same (output the value 'no change').
+
+Table: lyft_drivers
+\\
+
+SELECT *,
+CASE
+    WHEN n_churned_prev > n_churned THEN 'decrease'
+    WHEN n_churned_prev < n_churned THEN 'increase'
+    ELSE 'no change'
+END AS case
+FROM
+    (SELECT year_driver_churned,
+    COUNT(*) AS n_churned,
+    LAG(COUNT(*),1,0) OVER(ORDER BY year_driver_churned) AS n_churned_prev
+    FROM(
+        SELECT DATE_PART('year', end_date::date) AS year_driver_churned
+        FROM lyft_drivers
+        WHERE end_date IS NOT NULL
+        ) base
+    GROUP BY year_driver_churned
+    ORDER BY year_driver_churned ASC) calc
