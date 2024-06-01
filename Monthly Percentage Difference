@@ -1,0 +1,23 @@
+https://platform.stratascratch.com/coding/10319-monthly-percentage-difference?code_type=1
+
+\\
+Given a table of purchases by date, calculate the month-over-month percentage change in revenue. 
+The output should include the year-month date (YYYY-MM) and percentage change, rounded to the 2nd decimal point,
+and sorted from the beginning of the year to the end of the year.
+The percentage change column will be populated from the 2nd month forward and can be calculated as ((this month's revenue - last month's revenue) / last month's revenue)*100.
+
+Table: sf_transactions
+\\
+
+WITH CTE AS (
+    SELECT
+        TO_CHAR(created_at,'YYYY-MM') as txn_date,
+        SUM(value) AS current_month_revenue,
+        LAG(SUM(value),1) OVER(ORDER BY TO_CHAR(created_at,'YYYY-MM')) as previous_month_revenue
+    FROM sf_transactions
+    GROUP BY 1
+    ORDER BY 1)
+SELECT
+    txn_date,
+    ROUND(100.0 * (current_month_revenue-previous_month_revenue)/previous_month_revenue,2) as pct_change
+FROM CTE
