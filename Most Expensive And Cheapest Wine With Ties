@@ -1,0 +1,57 @@
+https://platform.stratascratch.com/coding/2147-most-expensive-and-cheapest-wine-with-ties?code_type=1
+
+\\
+Find the cheapest and the most expensive variety in each region.
+Output the region along with the corresponding most expensive and the cheapest variety.
+Be aware that there are 2 region columns, the price from that row applies to both of them.
+
+Note: The results set contains ties, so your solution should account for this.
+
+For example in the event of a tie for the cheapest wine your output should look similar to this:
+
+
+region             | most_expensive_variety | cheapest_variety
+region_name | expensive_variety             | cheap_variety_1
+region_name | expensive_variety             | cheap_variety_2
+
+Table: winemag_pd
+\\
+
+WITH CTE_1 AS
+    (SELECT region_1 AS region,
+            variety,
+            price
+    FROM winemag_pd
+    UNION ALL
+    SELECT region_2 AS region,
+            variety,
+            price
+    FROM winemag_pd),
+    
+    CTE_2 AS
+    (SELECT *,
+        RANK() OVER(PARTITION BY region ORDER BY price DESC) AS expensive_rank,
+        RANK() OVER(PARTITION BY region ORDER BY price ASC) AS cheap_rank
+    FROM CTE_1
+    WHERE price IS NOT NULL 
+        AND region IS NOT NULL),
+    
+    EXPENSIVE AS
+    (SELECT DISTINCT region,
+            variety AS Expensive_variety
+    FROM CTE_2
+    WHERE expensive_rank = 1),
+    
+    CHEAP AS
+    (SELECT DISTINCT region,
+            variety AS Cheap_variety
+    FROM CTE_2
+    WHERE cheap_rank = 1)
+    
+SELECT e.region AS region,
+        Expensive_variety AS most_expensive_variety,
+        Cheap_variety AS cheapest_variety
+FROM expensive AS e
+JOIN cheap AS c
+ON e.region = c.region
+ORDER BY region DESC
