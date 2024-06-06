@@ -1,0 +1,25 @@
+https://platform.stratascratch.com/coding/2087-negative-reviews-in-new-locations?code_type=1
+
+\\
+Find stores that were opened in the second half of 2021 with more than 20% of their reviews being negative.
+A review is considered negative when the score given by a customer is below 5.
+Output the names of the stores together with the ratio of negative reviews to positive ones.
+
+Tables: instacart_reviews, instacart_stores
+\\
+
+
+WITH CTE_1 AS(
+            SELECT s.name,
+            SUM(CASE WHEN r.score < 5 THEN 1 ELSE 0 END) AS negative_review,
+            SUM(CASE WHEN r.score >= 5 THEN 1 ELSE 0 END) AS positive_review,
+            COUNT(*) AS total_review
+            FROM instacart_stores s
+            JOIN instacart_reviews r ON r.store_id = s.id
+            WHERE s.opening_date >= '2021-07-01'
+            GROUP BY s.name)
+            
+SELECT name,
+(negative_review/positive_review :: float) AS review_ratio
+FROM CTE_1
+WHERE (100*negative_review/total_review ::float) > 20
