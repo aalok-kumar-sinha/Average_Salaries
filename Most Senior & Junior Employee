@@ -1,0 +1,30 @@
+https://platform.stratascratch.com/coding/2044-most-senior-junior-employee?code_type=1
+
+\\
+Write a query to find the number of days between the longest and least tenured employee still working for the company.
+Your output should include the number of employees with the longest-tenure, the number of employees with the least-tenure,
+and the number of days between both the longest-tenured and least-tenured hiring dates.
+
+Table: uber_employees
+\\
+
+WITH CTE_1 AS(
+            SELECT COUNT(ID) AS num_emp,
+            (CURRENT_DATE - hire_date) AS tenure
+            FROM uber_employees
+            WHERE termination_date IS NULL
+            GROUP BY tenure
+            ),
+            
+    CTE_2 AS(
+            SELECT *,
+            RANK() OVER(ORDER BY tenure DESC) AS max_tenure,
+            RANK() OVER(ORDER BY tenure ASC) AS least_tenure
+            FROM CTE_1
+            )
+            
+SELECT
+(SELECT num_emp FROM CTE_2 WHERE least_tenure = 1) AS shortest_tenured_count,
+(SELECT num_emp FROM CTE_2 WHERE max_tenure = 1) AS longest_tenured_count,
+(MAX(tenure)-min(tenure)) AS days_diff
+FROM CTE_2
