@@ -1,0 +1,21 @@
+https://platform.stratascratch.com/coding/10300-premium-vs-freemium?code_type=1
+
+\\
+Find the total number of downloads for paying and non-paying users by date.
+Include only records where non-paying customers have more downloads than paying customers.
+The output should be sorted by earliest date first and contain 3 columns date, non-paying downloads, paying downloads.
+
+Tables: ms_user_dimension, ms_acc_dimension, ms_download_facts
+\\
+
+--Find the total number of downloads for paying and non-paying users by date
+with cte as (
+        select date,
+        sum(case when paying_customer= 'no' then downloads end) as non_Paying,
+        sum(case when paying_customer= 'yes' then downloads end) as Paying 
+from ms_acc_dimension D 
+        inner join ms_user_dimension U on D.acc_id = U.acc_id
+        inner join ms_download_facts F on U.user_id = F.user_id
+         group by date order by date)
+         
+         select date,non_Paying,paying from cte where (non_Paying > Paying) order by date;
