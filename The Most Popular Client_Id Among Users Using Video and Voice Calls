@@ -1,0 +1,44 @@
+https://platform.stratascratch.com/coding/2029-the-most-popular-client_id-among-users-using-video-and-voice-calls?code_type=1
+
+//
+Select the most popular client_id based on a count of the number of users who have at least 50% of their events from the following list:
+'video call received', 'video call sent', 'voice call received', 'voice call sent'.
+
+Table: fact_events
+//
+
+WITH CallEvents AS (
+    SELECT 
+        user_id,
+        COUNT(*) AS total_events,
+        AVG(CASE 
+                WHEN event_type IN ('video call received', 'video call sent', 'voice call received', 'voice call sent') THEN 1
+                ELSE 0
+            END) AS call_event_avg
+    FROM 
+        fact_events
+    GROUP BY 
+        user_id
+    HAVING 
+        AVG(CASE 
+                WHEN event_type IN ('video call received', 'video call sent', 'voice call received', 'voice call sent') THEN 1
+                ELSE 0
+            END) >= 0.5
+),
+ClientRanking AS (
+    SELECT 
+        client_id,
+        RANK() OVER (ORDER BY COUNT(*) DESC) AS client_rank
+    FROM 
+        fact_events
+    WHERE 
+        user_id IN (SELECT user_id FROM CallEvents)
+    GROUP BY 
+        client_id
+)
+SELECT 
+    client_id
+FROM 
+    ClientRanking
+WHERE 
+    client_rank = 1;
